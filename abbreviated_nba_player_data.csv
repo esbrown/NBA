@@ -1,4 +1,4 @@
-Player,G,FG.,TRB,AST.x,PS.G,WEIGHT,heightnum
+Player,games_played,fg_percentage,rebounds,assists,points,weight,height
 Aaron Brooks,32,0.406,0.5,0.6,2.3,161,72
 Aaron Jackson,1,0.333,3,1,8,183,75
 Abdel Nader,48,0.336,1.5,0.5,3,230,78
