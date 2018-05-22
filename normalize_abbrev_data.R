@@ -8,4 +8,4 @@ for(i in 2:length(column_names)){
   scale_factor = scale_vals[i]
   data[,col_name] = data[,col_name] * scale_factor
 }
-output = write.csv(data, './normalized_abbrev_data', row.names = FALSE)
+output = write.csv(data, './normalized_abbrev_data.csv', row.names = FALSE)
