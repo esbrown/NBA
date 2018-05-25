@@ -3,6 +3,7 @@ import numpy as np
 from keras.utils import to_categorical
 from keras import models
 from keras import layers
+from keras import regularizers
 
 class neuralnet():
     def __init__(self, filename):
@@ -39,24 +40,27 @@ class neuralnet():
         x = np.array(x)
         y = np.array(y)
 
-        trainX, devX, testX = np.split(x, [150, 200], axis = 0)
-        trainY, devY, testY = np.split(y, [150, 200], axis = 0)
+        permutation = np.random.permutation(len(x))
+        x = x[permutation]
+        y = y[permutation]
+
+        trainX, devX, testX = np.split(x, [200, 225], axis = 0)
+        trainY, devY, testY = np.split(y, [200, 225], axis = 0)
 
         return trainX, trainY, devX, devY, testX, testY
-        # print y
-        # print x.shape, y.shape
 
     def trainModel(self, X, Y, devX, devY):
         model = models.Sequential()
-        model.add(layers.Dense(50, activation = 'relu', input_shape=(130,)))
-        model.add(layers.Dropout(0.3, noise_shape = None, seed = None))
+        model.add(layers.Dense(100, activation = 'relu', input_shape=(130,)))
+        model.add(layers.Dropout(0.2, noise_shape = None, seed = None))
         model.add(layers.Dense(50, activation = 'relu'))
-        model.add(layers.Dropout(0.3, noise_shape = None, seed = None))
-        model.add(layers.Dense(50, activation = 'relu'))
+        model.add(layers.Dropout(0.2, noise_shape = None, seed = None))
+        model.add(layers.Dense(25, activation = 'relu'))
+        model.add(layers.Dropout(0.2, noise_shape = None, seed = None))
         model.add(layers.Dense(1, activation = 'sigmoid'))
         model.summary()
         model.compile(optimizer = 'adam', loss = 'binary_crossentropy', metrics = ['accuracy'])
-        results = model.fit(X,Y, epochs = 30, batch_size = 25, validation_data = (devX, devY))
+        results = model.fit(X,Y, epochs = 1000, batch_size = 50, validation_data = (devX, devY))
         print ("Test-Accuracy: ", np.mean(results.history['val_acc']))
 
 def main():
