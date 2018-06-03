@@ -6,11 +6,15 @@ from keras import layers
 from keras import regularizers
 
 class neuralnet():
-    def __init__(self, filename, filename2017, filename2016, filename2015):
-        self.playerData = self.createDict(filename)
-        self.playerData2017 = self.createDict(filename2017)
-        self.playerData2016 = self.createDict(filename2016)
-        self.playerData2015 = self.createDict(filename2015)
+    def __init__(self):
+        self.playerData = self.createDict('normalized_neural_data.csv')
+        self.playerData2017 = self.createDict('normalized_neural_data_2017.csv')
+        self.playerData2016 = self.createDict('normalized_neural_data_2016.csv')
+        self.playerData2015 = self.createDict('normalized_neural_data_2015.csv')
+        self.playerData2014 = self.createDict('normalized_neural_data_2014.csv')
+        self.playerData2013 = self.createDict('normalized_neural_data_2013.csv')
+        self.playerData2012 = self.createDict('normalized_neural_data_2012.csv')
+        self.playerData2011 = self.createDict('normalized_neural_data_2011.csv')
 
     def createDict(self, filename):
         playerData = {}
@@ -22,6 +26,7 @@ class neuralnet():
                     continue
                 name[0] = name[0][0] + '.'
                 name = ''.join(name)
+                name = name.replace("*", "")
                 if name not in playerData and name != 't.':
                     playerData[name] = [float(item) if item != '' else 0 for item in row[1:]]
         return playerData
@@ -49,6 +54,10 @@ class neuralnet():
         x,y = self.appendData('lineup_data_2016-17.csv', self.playerData2017, x, y)
         x,y = self.appendData('lineup_data_2015-16.csv', self.playerData2016, x, y)
         x,y = self.appendData('lineup_data_2014-15.csv', self.playerData2015, x, y)
+        x,y = self.appendData('lineup_data_2013-14.csv', self.playerData2014, x, y)
+        x,y = self.appendData('lineup_data_2012-13.csv', self.playerData2013, x, y)
+        x,y = self.appendData('lineup_data_2011-12.csv', self.playerData2012, x, y)
+        x,y = self.appendData('lineup_data_2010-11.csv', self.playerData2011, x, y)
 
         x = np.array(x)
         y = np.array(y)
@@ -57,28 +66,26 @@ class neuralnet():
         x = x[permutation]
         y = y[permutation]
 
-        trainX, devX, testX = np.split(x, [900, 950], axis = 0)
-        trainY, devY, testY = np.split(y, [900, 950], axis = 0)
+        trainX, devX, testX = np.split(x, [1800, 1900], axis = 0)
+        trainY, devY, testY = np.split(y, [1800, 1900], axis = 0)
 
         return trainX, trainY, devX, devY, testX, testY
 
     def trainModel(self, X, Y, devX, devY):
         model = models.Sequential()
-        model.add(layers.Dense(20, activation = 'relu', input_shape=(130,)))
-        model.add(layers.Dropout(0.5, noise_shape = None, seed = None))
-        model.add(layers.Dense(10, activation = 'relu'))
-        model.add(layers.Dropout(0.5, noise_shape = None, seed = None))
-        model.add(layers.Dense(4, activation = 'relu'))
-        model.add(layers.Dropout(0.5, noise_shape = None, seed = None))
+        model.add(layers.Dense(4, activation = 'relu', input_shape=(130,)))
+        model.add(layers.Dropout(0.6, noise_shape = None, seed = None))
+        # model.add(layers.Dense(5, activation = 'relu'))
+        # model.add(layers.Dropout(0.6, noise_shape = None, seed = None))
         model.add(layers.Dense(1, activation = 'sigmoid'))
         model.summary()
         model.compile(optimizer = 'adam', loss = 'binary_crossentropy', metrics = ['accuracy'])
-        results = model.fit(X,Y, epochs = 200, batch_size = 25, validation_data = (devX, devY))
+        results = model.fit(X,Y, epochs = 150, batch_size = 50, validation_data = (devX, devY))
         print ("Test-Accuracy: ", np.mean(results.history['val_acc']))
         return model
 
 def main():
-    net = neuralnet('normalized_neural_data.csv', 'normalized_neural_data_2017.csv', 'normalized_neural_data_2016.csv', 'normalized_neural_data_2015.csv')
+    net = neuralnet()
     trainX, trainY, devX, devY, testX, testY = net.prepareData()
     model = net.trainModel(trainX, trainY, devX, devY)
     predictions = model.predict(testX)
