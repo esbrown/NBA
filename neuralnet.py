@@ -66,17 +66,21 @@ class neuralnet():
         x = x[permutation]
         y = y[permutation]
 
-        trainX, devX, testX = np.split(x, [1800, 1900], axis = 0)
-        trainY, devY, testY = np.split(y, [1800, 1900], axis = 0)
+        trainX, devX, testX = np.split(x, [1750, 1875], axis = 0)
+        trainY, devY, testY = np.split(y, [1750, 1875], axis = 0)
+        # trainX, devX, testX = np.split(x, [800, 900], axis = 0)
+        # trainY, devY, testY = np.split(y, [800, 900], axis = 0)
+        # trainX, devX, testX = np.split(x, [400, 450], axis = 0)
+        # trainY, devY, testY = np.split(y, [400, 450], axis = 0)
 
         return trainX, trainY, devX, devY, testX, testY
 
     def trainModel(self, X, Y, devX, devY):
         model = models.Sequential()
-        model.add(layers.Dense(4, activation = 'relu', input_shape=(130,)))
+        model.add(layers.Dense(10, activation = 'relu', input_shape=(130,)))
         model.add(layers.Dropout(0.6, noise_shape = None, seed = None))
-        # model.add(layers.Dense(5, activation = 'relu'))
-        # model.add(layers.Dropout(0.6, noise_shape = None, seed = None))
+        model.add(layers.Dense(5, activation = 'relu'))
+        model.add(layers.Dropout(0.6, noise_shape = None, seed = None))
         model.add(layers.Dense(1, activation = 'sigmoid'))
         model.summary()
         model.compile(optimizer = 'adam', loss = 'binary_crossentropy', metrics = ['accuracy'])
@@ -100,8 +104,22 @@ def main():
         if predictions[i] == testY[i]:
             count += 1
     print(float(count)/len(predictions))
+    eastAllStars = [net.playerData[name] for name in ['l.james', 'k.irving', 'k.durant', 'a.davis', 'd.cousins']]
+    westAllStars = [net.playerData[name] for name in ['s.curry', 'g.antetokounmpo', 'd.derozan', 'j.embiid', 'j.harden']]
+    badBigLineup = [net.playerData[name] for name in ['d.johnson', 'm.leonard', 'b.paul', 'j.layman', 'j.young']]
+    badSmallLineup = [net.playerData[name] for name in ['d.rose', 't.parker', 'n.young', 's.larkin', 'r.rubio']]
+    warriors = [net.playerData[name] for name in ['d.green', 'k.durant', 'j.mcgee', 's.curry', 'k.thompson']]
+    cavs = [net.playerData[name] for name in ['l.james', 'k.love', 't.thompson', 'g.hill', 'j.smith']]
+    
 
-
+    lineups = []
+    for lineup in [eastAllStars, westAllStars, badBigLineup, badSmallLineup, warriors, cavs]:
+        stats = np.zeros(130)
+        for i, name in enumerate(lineup):
+            stats[i*26:(i+1)*26] = lineup[i]
+        lineups.append(stats)
+    predictions = model.predict(np.array(lineups))
+    print(predictions)
 
 
 if __name__ == "__main__":
