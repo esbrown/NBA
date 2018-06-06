@@ -1,4 +1,5 @@
 data = read.csv(file.choose())
+data[is.na(data)] = 0
 column_names = c('Name', 'age','GP', 'Mins', '3_pt_attempt', '3_pt_pct', '2_pt_attempt', '2_pt_pct','ft_attempt', 'ft_pct', 'off_reb','def_reb', 'assist', 'steal','blocks', 'TO', 'Fouls', 'Weight', 'net_rating', 'height')
 scale_vals = c(0, 3, 1, 3, 2, 3, 3, 4, 2, 2, 3, 3, 5, 3, 3, 3, 2, 2, 6, 2)
 colnames(data) = column_names
