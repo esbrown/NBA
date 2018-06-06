@@ -13,12 +13,14 @@ from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
 from sklearn.datasets.samples_generator import make_blobs
 from pandas.tools.plotting import parallel_coordinates
 
+from sklearn.metrics import silhouette_samples, silhouette_score
+
 from sklearn.datasets import load_iris
 
 class NBA():
 
-    def __init__(self, filename):
-        self.NUM_CLUSTERS = 7
+    def __init__(self, filename, numClusters):
+        self.NUM_CLUSTERS = numClusters
         self.classes = []
         self.data = self.cleanData(filename)
         
@@ -44,6 +46,7 @@ class NBA():
                 players[name] = stats
         return players
 
+
     def kmeans(self):
         stats = np.array(self.data.values())
         names = self.data.keys()
@@ -54,27 +57,33 @@ class NBA():
         # print 'KMEANS: ' + str(kmeans)
         # print 'CLUSTER CENTERS: ' + str(kmeans.cluster_centers_)
         # print 'LABELS: ' + str(kmeans.labels_)
+        labeledPlayers = {}
         clusters = [[] for i in range(self.NUM_CLUSTERS)]
         for i, cluster in enumerate(kmeans.labels_):
             clusters[cluster].append(names[i])
-        for cluster in clusters:
-            print cluster, len(cluster)
+            labeledPlayers[names[i]] = cluster
+        #for cluster in clusters:
+            #print cluster, len(cluster)
+        #silhouette_avg = silhouette_score(stats, y_kmeans)
+        print labeledPlayers
+        #print 'num clusters: ' + str(self.NUM_CLUSTERS) + '  silhouette_score: ' + str(round(silhouette_avg, 4))
+        #self.visualize(kmeans, stats)
 
-        self.visualize(kmeans, stats)
 
     def visualize(self, kmeans, stats):
         pca = PCA(n_components=2).fit(stats)
         pca_2d = pca.transform(stats)
         clusters = kmeans.cluster_centers_
         clusters_2d = pca.transform(clusters)
-        plt.scatter(clusters_2d[:, 0], clusters_2d[:, 1], marker="*", s=300, c='black')
-        pl.scatter(pca_2d[:, 0], pca_2d[:, 1], c=kmeans.labels_)
+        colors = ['r','b','y','g','c','m']
+        pl.scatter(pca_2d[:, 0], pca_2d[:, 1], s=20, c=[colors[l_] for l_ in kmeans.labels_])
+        plt.scatter(clusters_2d[:, 0], clusters_2d[:, 1], s=80, marker='x', c=[c for c in colors[:len(clusters_2d)]])
         pl.show()
 
 
 
 def main():
-    nba = NBA('combined_nba_player_data.csv')
+    nba = NBA('combined_nba_player_data.csv', 5)
     nba.kmeans()
     #X, y = make_blobs(n_samples=200, centers=3, n_features=2, random_state=0)
     #plt.scatter(X[:,0], X[:,1], c=y)
